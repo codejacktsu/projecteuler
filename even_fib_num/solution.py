@@ -7,15 +7,20 @@ By considering the terms in the Fibonacci sequence whose values do not exceed fo
  find the sum of the even-valued terms.
 """
 
-def fib_even_sum(n):
+from util import timer
+
+
+@timer
+def fib_even_sum():
     count, a, b = 2, 1, 2
-    for _ in range(n - 2):
+    while True:
         next = a + b
+        if next > 4000000:
+            break
         if next % 2 == 0:
             count += next
         a, b = b, next
     return count
 
-print(fib_even_sum(3999999))
 
-# 1, 2, 3, 5, 8, 13, 21, 34
+print(fib_even_sum())
