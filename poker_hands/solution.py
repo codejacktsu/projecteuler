@@ -75,7 +75,7 @@ def poker_hands():
             P1 = Player(process(hand.split()[:5]))
             P2 = Player(process(hand.split()[5::]))
             p1score += compete(P1, P2)
-            print(P1.hand, P2.hand, "|", P1.tier, P2.tier, "|", p1score)
+            # print(P1.hand, P2.hand, "|", P1.tier, P2.tier, "|", p1score)
     return p1score
 
 
