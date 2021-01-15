@@ -14,6 +14,13 @@ n	Relatively Prime	φ(n)	n/φ(n)
 It can be seen that n=6 produces a maximum n/φ(n) for n ≤ 10.
 
 Find the value of n ≤ 1,000,000 for which n/φ(n) is a maximum.
+
+Version Performance
+limit = 10000
+relative:       14 secs
+cache:          7 secs
+phi limit:      4 secs
+check prime-1:  2.6 secs
 """
 
 from math import gcd
@@ -22,32 +29,31 @@ from util import timer
 
 @timer
 def totient_maximum(limit):
-    cache = {}
-    t_max = (0, 0)
-    for n in range(2, limit+1):
-        # find all prime
+    """ check num after prime """
+
+    t_max = (2, 2)
+    for n in range(3, limit+1):
         phi = 0
-        for j in range(1, n):
-            if j in cache.keys():
-                flag = cache[j]
-            else:
-                flag = prime(j)
-                cache[n] = flag
-            if flag and relative(j, n):
-                phi += 1
-        # print(n, n/phi)
-        t_max = max(t_max, (n, n/phi), key=lambda i: i[1])
+        phi_lim = n/t_max[1]
+        breakflag = 0
+
+        if prime(n-1):
+            for j in range(1, n):
+                if relative(n, j):
+                    phi += 1
+                    if phi >= phi_lim:
+                        breakflag = 1
+                        break
+            if not breakflag:
+                t_max = (n, n/phi)
+        # print(n, phi, phi_lim, breakflag)
+                # rel.append(j)
+        # for r in rel:
+        #     mn = n * r
+        #     cache[mn] = phi * cache[r]
+        # t_max = max(t_max, (n, n/phi), key=lambda i: i[1])
+
     return t_max[0]
-
-
-def prime(num):
-    if num == 1 or num == 2:
-        return True
-    for i in range(2, num):
-        if (num % i) == 0:
-            return False
-        else:
-            return True
 
 
 def relative(num, n):
@@ -57,5 +63,46 @@ def relative(num, n):
         return False
 
 
-limit = 1000000
+def prime(num):
+    if num <= 3:
+        return True
+    for i in range(4, num):
+        if (num % i) == 0:
+            return False
+        else:
+            return True
+
+
+limit = 10000
 print(totient_maximum(limit))
+
+
+# deprecated versions
+# @timer
+# def totient_maximum(limit):
+#     """ phi(m * n) = phi(m) * phi(n) if gcd(m, n) == 1 """
+#
+#     t_max = (0, 0)
+#     cache = {1: 1}
+#     for n in range(2, limit+1):
+#         phi = 0
+#         rel = []
+#         if n in cache.keys():
+#             phi = cache[n]
+#         else:
+#             for j in range(1, n):
+#                 if relative(n, j):
+#                     phi += 1
+#                     rel.append(j)
+#         for r in rel:
+#             mn = n * r
+#             cache[mn] = phi * cache[r]
+#         t_max = max(t_max, (n, n/phi), key=lambda i: i[1])
+#     return t_max[0]
+#
+#
+# def relative(num, n):
+#     if gcd(num, n) == 1:
+#         return True
+#     else:
+#         return False
