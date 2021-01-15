@@ -16,12 +16,42 @@ It can be seen that n=6 produces a maximum n/φ(n) for n ≤ 10.
 Find the value of n ≤ 1,000,000 for which n/φ(n) is a maximum.
 """
 
+from math import gcd
 from util import timer
 
 
 @timer
-def totient_maximum():
-    pass
+def totient_maximum(limit):
+    cache = {}
+    t_max = 0
+    for n in range(2, limit+1):
+        # find all prime
+        phi = 0
+        rel_cache = {}
+        for j in range(1, n):
+            if j in cache.keys():
+                flag = cache[j]
+            else:
+                pflag, rflag = prime(j), relative(j, n)
+                cache[n] = pflag and rflag
+            if flag:
+                phi += 1
+            t_max = max(t_max, n/phi)
 
 
-print(totient_maximum())
+def prime(num):
+    if num == 1 or num == 2:
+        return True
+    for i in range(2, num):
+        if (num % i) == 0:
+            return False
+        else:
+            return True
+
+
+def relative(num, n):
+    return gcd(num, n)
+
+
+limit = 10
+print(totient_maximum(limit))
