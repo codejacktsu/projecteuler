@@ -1,5 +1,7 @@
 """
-Euler's Totient function, φ(n) [sometimes called the phi function], is used to determine the number of numbers less than n which are relatively prime to n. For example, as 1, 2, 4, 5, 7, and 8, are all less than nine and relatively prime to nine, φ(9)=6.
+Euler's Totient function, φ(n) [sometimes called the phi function],
+is used to determine the number of numbers less than n which are relatively prime to n.
+For example, as 1, 2, 4, 5, 7, and 8, are all less than nine and relatively prime to nine, φ(9)=6.
 
 n	Relatively Prime	φ(n)	n/φ(n)
 2	1	1	2
@@ -20,39 +22,38 @@ limit = 10000
 relative:       14 secs
 cache:          7 secs
 phi limit:      4 secs
-check prime-1:  2.6 secs
+check prime-1:  0.6 secs
+check prime-1 + prime phi cache + factor:
 """
 
-from math import gcd
+from math import gcd, sqrt, floor
+from functools import reduce
 from util import timer
 
 
 @timer
-def totient_maximum(limit):
+def totient_maximum(lmt):
     """ check num after prime """
 
-    t_max = (2, 2)
-    for n in range(3, limit+1):
-        phi = 0
-        phi_lim = n/t_max[1]
-        breakflag = 0
-
+    t_max = (1, 1)
+    cache = {0: 0, 1: 1}
+    for n in range(2, lmt+1):
+        if prime(n):
+            # if n = prime, phi = n - 1
+            cache[n] = n - 1
+            continue
         if prime(n-1):
-            for j in range(1, n):
-                if relative(n, j):
-                    phi += 1
-                    if phi >= phi_lim:
-                        breakflag = 1
-                        break
-            if not breakflag:
-                t_max = (n, n/phi)
-        # print(n, phi, phi_lim, breakflag)
-                # rel.append(j)
-        # for r in rel:
-        #     mn = n * r
-        #     cache[mn] = phi * cache[r]
-        # t_max = max(t_max, (n, n/phi), key=lambda i: i[1])
-
+            phi = 1
+            factli = factors(n)[2::]
+            while factli:
+                # print(factli, n, cache, phi)
+                f = factli.pop()
+                if prime(f):
+                    phi *= cache[f]
+                else:
+                    factli += factors(f)[2:3]
+            t_max = max(t_max, (n, n/phi), key=lambda i: i[1])
+    print(cache)
     return t_max[0]
 
 
@@ -64,18 +65,38 @@ def relative(num, n):
 
 
 def prime(num):
-    if num <= 3:
+    if num <= 1:
+        return False
+    if num == 2:
         return True
-    for i in range(4, num):
-        if (num % i) == 0:
+    if num > 2 and num % 2 == 0:
+        return False
+
+    for i in range(3, floor(sqrt(num)) + 1, 2):
+        if num % i == 0:
             return False
-        else:
-            return True
+    return True
+
+
+def factors(num):
+    return reduce(list.__add__,
+                  ([i, num//i] for i in range(1, int(num**0.5) + 1) if num % i == 0))
+
+
+def phi_1_to_n(n):
+    phi = {0: 0, 1: 1}
+    for i in range(2, n + 1):
+        phi[i] = i
+    for i in range(2, n + 1):
+        if phi[i] == i:
+            for j in range(i, n + 1, i):
+                phi[j] -= phi[j] // i
+    return phi
 
 
 limit = 10000
-print(totient_maximum(limit))
-
+# print(totient_maximum(limit))
+print(phi_1_to_n(limit))
 
 # deprecated versions
 # @timer
