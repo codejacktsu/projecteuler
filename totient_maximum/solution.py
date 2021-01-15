@@ -23,20 +23,21 @@ from util import timer
 @timer
 def totient_maximum(limit):
     cache = {}
-    t_max = 0
+    t_max = (0, 0)
     for n in range(2, limit+1):
         # find all prime
         phi = 0
-        rel_cache = {}
         for j in range(1, n):
             if j in cache.keys():
                 flag = cache[j]
             else:
-                pflag, rflag = prime(j), relative(j, n)
-                cache[n] = pflag and rflag
-            if flag:
+                flag = prime(j)
+                cache[n] = flag
+            if flag and relative(j, n):
                 phi += 1
-            t_max = max(t_max, n/phi)
+        # print(n, n/phi)
+        t_max = max(t_max, (n, n/phi), key=lambda i: i[1])
+    return t_max[0]
 
 
 def prime(num):
@@ -50,8 +51,11 @@ def prime(num):
 
 
 def relative(num, n):
-    return gcd(num, n)
+    if gcd(num, n) == 1:
+        return True
+    else:
+        return False
 
 
-limit = 10
+limit = 1000000
 print(totient_maximum(limit))
